@@ -1,5 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
-import GraphiQL from "graphiql";
+import React, { useRef, useState, useEffect, Fragment } from "react";
+// @ts-ignore
+import GraphiQL from "@forked/graphiql";
 import { Observable, useQuery, makeVar, useReactiveVar, gql, FetchResult } from "@apollo/client";
 import type { GraphQLSchema, IntrospectionQuery } from "graphql";
 import { getIntrospectionQuery, buildClientSchema } from "graphql/utilities";
@@ -12,7 +13,7 @@ import { ColorTheme } from '../theme';
 import { sendGraphiQLRequest, receiveGraphiQLResponses, listenForResponse } from './graphiQLRelay';
 import { FullWidthLayout } from '../Layouts/FullWidthLayout';
 
-import "../../../node_modules/graphiql/graphiql.css";
+import "@forked/graphiql-css";
 
 enum FetchPolicy {
   NoCache = 'no-cache',
@@ -97,23 +98,30 @@ export const Explorer = ({ navigationProps }) => {
         </label>
       </FullWidthLayout.Header>
       <FullWidthLayout.Main>
-        <GraphiQLExplorer
-          schema={schema}
-          query={query}
-          onEdit={newQuery => graphiQLQuery(newQuery)}
-          explorerIsOpen={isExplorerOpen}
-          onToggleExplorer={handleToggleExplorer}
-        />
-        <GraphiQL
-          ref={graphiQLRef}
-          fetcher={executeOperation as any}
-          schema={schema}
-          query={query}
-          editorTheme={theme === ColorTheme.Dark ? 'dracula' : 'graphiql'}
-          onEditQuery={newQuery => graphiQLQuery(newQuery)}
-        >
-          <GraphiQL.Toolbar />
-        </GraphiQL>
+      <GraphiQL
+        ref={graphiQLRef}
+        fetcher={executeOperation as any}
+        schema={schema}
+        query={query}
+        editorTheme={theme === ColorTheme.Dark ? 'dracula' : 'graphiql'}
+        onEditQuery={newQuery => graphiQLQuery(newQuery)}
+        render={({ Logo }) => {
+          return (
+            <Fragment>
+              <GraphiQLExplorer
+                schema={schema}
+                query={query}
+                onEdit={newQuery => graphiQLQuery(newQuery)}
+                explorerIsOpen={isExplorerOpen}
+                onToggleExplorer={handleToggleExplorer}
+              />
+              <Logo />
+            </Fragment>
+          );
+        }}
+      >
+        <GraphiQL.Toolbar />
+      </GraphiQL>
       </FullWidthLayout.Main>
     </FullWidthLayout>
   );
